@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radio Communications Quiz</title>
+    <style>
+        /* Full screen styles applied to the body to handle background */
+        body.fullscreen-mode {
+            background-color: #171733; /* Dark navy background */
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            overflow: auto; 
+        }
+
+        /* Base styles for the quiz container */
+        .quiz-container-minimal {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            background-color: #171733; /* Dark navy background */
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            width: 100%; /* Default width is 100% of the parent container (iframe) */
+            margin: 0; /* No margin, flush with the left side */
+            padding: 2rem;
+            color: #fff; /* White text for the main container */
+            border: 1px solid #171733; /* Dark navy border */
+            transition: background-color 0.5s, color 0.5s, padding 0.5s, border 0.5s;
+            position: relative; /* Enables absolute positioning for the fullscreen button */
+            box-sizing: border-box; /* This is the fix: include padding in the total width */
+        }
+        
+        /* This rule now only applies when in fullscreen mode */
+        body.fullscreen-mode .quiz-container-minimal {
+            width: 66.6vw; /* Exactly 66.6% of the viewport width */
+            margin: 0 auto; /* Center the container in full screen */
+            padding: 2rem;
+        }
+
+        /* Styles for the new header */
+        .quiz-header-minimal {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            text-align: left; /* Changed from 'center' to 'left' to fix alignment */
+            color: #fff; /* White header text */
+        }
+
+        /* Left align the header in full screen mode */
+        body.fullscreen-mode .quiz-header-minimal {
+            text-align: left;
+        }
+        
+        /* Reverted question block styles to be a simple separator again */
+        .question-block-minimal {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Light separator for questions */
+        }
+        .question-block-minimal:last-of-type {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        /* NEW: Styles for the question text box */
+        .question-text-box {
+            background-color: #0892ca; /* Signature light blue */
+            border-radius: 8px;
+            padding: 1rem 1.5rem; /* Padding inside the box */
+            margin-bottom: 1rem; /* Space between the box and the options */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+        }
+
+        /* Question text style */
+        .question-text-minimal {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff; /* White question text for the blue background */
+            margin: 0; /* Remove default margin from the p tag */
+        }
+
+        /* Container for the answer options */
+        .options-minimal {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        /* Individual answer option label */
+        .option-label-minimal {
+            display: block;
+            background-color: #ffffff; /* White background for options */
+            border: 1px solid #eef0f2;
+            border-radius: 8px;
+            padding: 0.8rem 1rem;
+            cursor: pointer;
+            color: #333; /* Dark text for options */
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .option-label-minimal:hover {
+            background-color: #f0f4f8;
+            border-color: #dbe4ee;
+        }
+
+        /* Hiding the default checkbox/radio button */
+        .option-label-minimal input[type="checkbox"] {
+            display: none;
+        }
+
+        /* Style for the selected answer */
+        .option-label-minimal.selected {
+             background-color: #2c3e50; /* Darker blue/grey for selected state */
+             border-color: #2c3e50;
+             color: #ffffff; /* White text for selected state */
+        }
+        
+        /* Updated correct/incorrect styles for the new background */
+        .option-label-minimal.correct {
+            background-color: #28a745; /* Solid green background for correct */
+            border-color: #28a745;
+            color: #ffffff; /* White text for correct */
+            pointer-events: none;
+        }
+        .option-label-minimal.incorrect {
+            background-color: #dc3545; /* Solid red background for incorrect */
+            border-color: #dc3545;
+            color: #ffffff; /* White text for incorrect */
+            pointer-events: none;
+        }
+        
+        /* Submit and Try Again buttons */
+        .submit-btn-minimal, .new-btn, .reset-btn-minimal {
+            display: block;
+            background-color: #0892ca; /* Light blue for buttons */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 2rem;
+            width: 100%;
+            transition: background-color 0.2s;
+        }
+        .submit-btn-minimal:hover, .new-btn:hover, .reset-btn-minimal:hover {
+            background-color: #0673a1; /* Slightly darker blue on hover */
+        }
+
+        /* Results container styles - now just a wrapper for content */
+        .results-container-minimal {
+            text-align: center;
+            padding: 2rem;
+            border-radius: 12px;
+            color: #fff;
+        }
+        
+        .results-container-minimal h2, .results-container-minimal p {
+            color: #fff;
+        }
+
+        .new-btn-container {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+        
+        .new-btn-container .new-btn {
+            background-color: #0892ca; /* Correct signature light blue color */
+            color: white; /* Changed button text to white */
+            margin-top: 0;
+            flex: 1;
+        }
+        
+        .new-btn-container .new-btn:hover {
+            background-color: #0673a1; /* A slightly darker shade for hover */
+        }
+        
+        /* New styles for the grade circle */
+        .grade-circle {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: #ffffff;
+            background-color: #171733;
+            transition: background-image 0.5s ease-in-out;
+        }
+        /* Add a white outline to the grade circle to make it stand out */
+        .grade-circle::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border: 2px solid white;
+            border-radius: 50%;
+            z-index: -1;
+        }
+
+        /* Utility class to hide elements */
+        .hidden {
+            display: none;
+        }
+
+        /* New button container for full screen and reset */
+        .action-btn-container {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .action-btn-container button {
+            flex: 1;
+            margin-top: 0;
+        }
+
+        /* Default Fullscreen button styles - relative to its container */
+        .fullscreen-btn-minimal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 40px;
+            height: 40px;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .fullscreen-btn-minimal:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: #fff;
+        }
+
+        /* NEW: Fullscreen button styles when in fullscreen mode - fixed to the viewport */
+        body.fullscreen-mode .fullscreen-btn-minimal {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            /* To make sure it stays on top of content */
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container-minimal" id="quiz-container-minimal">
+        <button type="button" class="fullscreen-btn-minimal" id="fullscreen-btn-minimal" title="Full Screen">
+            <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white">
+                <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+            </svg>
+        </button>
+        <div class="quiz-header-minimal" id="quiz-header-minimal">Complete the questions below:</div>
+        <form id="quiz-form-minimal">
+            </form>
+        <button type="button" class="submit-btn-minimal" id="submit-btn-minimal">Submit</button>
+        
+        <div class="results-container-minimal hidden" id="results-container-minimal">
+            <h2 id="score-header-minimal"></h2>
+            <div id="grade-circle" class="grade-circle"></div>
+            <p id="score-text-minimal"></p>
+            <div class="new-btn-container">
+                <button type="button" class="new-btn" id="yes-btn">Yes please</button>
+                <button type="button" class="new-btn" id="no-btn">No - show me my results</button>
+            </div>
+        </div>
+        
+        <div class="action-btn-container">
+            <button type="button" class="reset-btn-minimal hidden" id="reset-btn-minimal">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white" style="vertical-align: middle; margin-right: 8px;">
+                    <path d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.51 0-2.91-.49-4.06-1.3l-1.42 1.42C9.27 19.94 11.04 20.5 13 20.5c4.97 0 9-4.03 9-9s-4.03-9-9-9z"/>
+                </svg>
+                Reset
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- Quiz Data ---
+        const quizDataMinimal = [
+            {
+                question: "What is the difference between a ground wave and a sky wave?",
+                options: [
+                    "Ground waves follow the Earth's curvature; sky waves are refracted by the ionosphere.",
+                    "Ground waves travel in straight lines; sky waves are reflected by the ground.",
+                    "Ground waves are for satellite communication; sky waves are for short-range radio.",
+                    "Sky waves are absorbed by the atmosphere; ground waves are not."
+                ],
+                correct: 0
+            },
+            {
+                question: "Which band is most commonly used for aircraft voice communication in Australia?",
+                options: [
+                    "High Frequency (HF)",
+                    "Very High Frequency (VHF)",
+                    "Ultra High Frequency (UHF)",
+                    "Low Frequency (LF)"
+                ],
+                correct: 1
+            },
+            {
+                question: "Which of the following are two environmental factors that affect radio transmission?",
+                options: [
+                    "Time of day and cloud cover",
+                    "Temperature and humidity",
+                    "Time of day and solar activity",
+                    "Moon phase"
+                ],
+                correct: 2
+            },
+            {
+                question: "What is the role of an antenna in radio transmission?",
+                options: [
+                    "To convert electrical signals into radio waves, and vice-versa.",
+                    "To generate the power for the signal.",
+                    "To modulate the audio onto the carrier wave.",
+                    "To filter out unwanted noise from the transmission."
+                ],
+                correct: 0 
+            },
+            {
+                question: "What is the main limitation of VHF communication?",
+                options: [
+                    "It is limited to line-of-sight distances.",
+                    "It is easily affected by solar flares.",
+                    "It requires very large antennas.",
+                    "It has a very low data transmission rate."
+                ],
+                correct: 0
+            }
+        ];
+
+        // --- DOM Elements ---
+        const quizContainer = document.getElementById('quiz-container-minimal');
+        const quizHeader = document.getElementById('quiz-header-minimal');
+        const quizForm = document.getElementById('quiz-form-minimal');
+        const submitButton = document.getElementById('submit-btn-minimal');
+        const resultsContainer = document.getElementById('results-container-minimal');
+        const scoreHeader = document.getElementById('score-header-minimal');
+        const scoreText = document.getElementById('score-text-minimal');
+        const yesButton = document.getElementById('yes-btn');
+        const noButton = document.getElementById('no-btn');
+        const resetButton = document.getElementById('reset-btn-minimal');
+        const fullscreenButton = document.getElementById('fullscreen-btn-minimal');
+        const gradeCircle = document.getElementById('grade-circle');
+
+        // --- Functions ---
+
+        /**
+         * Loads and displays the quiz questions and options, resetting the state.
+         */
+        function loadQuiz() {
+            // Reset all elements to their initial state
+            resultsContainer.classList.add('hidden');
+            submitButton.classList.remove('hidden');
+            resetButton.classList.add('hidden');
+            quizForm.classList.remove('hidden');
+            quizHeader.classList.remove('hidden');
+            quizHeader.textContent = "Complete the questions below:";
+            quizContainer.classList.remove('is-results');
+
+            // Remove previous highlights and selections
+            document.querySelectorAll('.option-label-minimal').forEach(label => {
+                label.classList.remove('correct', 'incorrect', 'selected');
+                label.style.pointerEvents = 'auto';
+                label.style.cursor = 'pointer';
+            });
+            
+            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            
+            // Dynamically create questions if they don't exist
+            if (quizForm.childElementCount === 0) {
+                quizDataMinimal.forEach((q, qIndex) => {
+                    const newQuestionBlock = document.createElement('div');
+                    newQuestionBlock.className = 'question-block-minimal';
+
+                    // NEW: Wrap the question text in a blue box
+                    const questionTextBox = document.createElement('div');
+                    questionTextBox.className = 'question-text-box';
+                    
+                    const questionText = document.createElement('p');
+                    questionText.className = 'question-text-minimal';
+                    questionText.textContent = `${qIndex + 1}. ${q.question}`;
+                    
+                    questionTextBox.appendChild(questionText);
+                    newQuestionBlock.appendChild(questionTextBox);
+
+                    const optionsDiv = document.createElement('div');
+                    optionsDiv.className = 'options-minimal';
+
+                    q.options.forEach((opt, oIndex) => {
+                        const label = document.createElement('label');
+                        label.className = 'option-label-minimal';
+                        
+                        // Using a checkbox instead of a radio button
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.name = `question-${qIndex}`;
+                        checkbox.value = oIndex;
+                        
+                        const span = document.createElement('span');
+                        span.textContent = opt;
+
+                        label.appendChild(checkbox);
+                        label.appendChild(span);
+                        optionsDiv.appendChild(label);
+                        
+                        // Event listener for the new checkbox functionality
+                        checkbox.addEventListener('change', () => {
+                            const groupName = checkbox.name;
+                            const questionBlock = checkbox.closest('.question-block-minimal');
+                            
+                            // Uncheck all other checkboxes in this question group
+                            questionBlock.querySelectorAll(`input[type="checkbox"]`).forEach(c => {
+                                if (c !== checkbox) {
+                                    c.checked = false;
+                                }
+                            });
+                            
+                            // Now apply the selected class based on the checked state
+                            questionBlock.querySelectorAll('.option-label-minimal').forEach(labelToUpdate => {
+                                const input = labelToUpdate.querySelector('input');
+                                if (input.checked) {
+                                    labelToUpdate.classList.add('selected');
+                                } else {
+                                    labelToUpdate.classList.remove('selected');
+                                }
+                            });
+                        });
+                    });
+                    newQuestionBlock.appendChild(optionsDiv);
+                    quizForm.appendChild(newQuestionBlock);
+                });
+            }
+        }
+
+        /**
+         * Calculates the score and displays the results.
+         */
+        function showResults() {
+            let score = 0;
+            const totalQuestions = quizDataMinimal.length;
+            
+            // Loop through each question to check for answers and update score
+            quizDataMinimal.forEach((q, qIndex) => {
+                const selectedOption = document.querySelector(`input[name="question-${qIndex}"]:checked`);
+                // Check if an option is selected AND it is the correct one
+                if (selectedOption && parseInt(selectedOption.value) === q.correct) {
+                    score++;
+                }
+            });
+
+            const percentage = Math.round((score / totalQuestions) * 100);
+
+            // Update the results display
+            scoreHeader.textContent = "You scored:";
+            scoreText.innerHTML = `You answered ${score} out of ${totalQuestions} questions correctly. Would you like to reattempt the quiz?`;
+
+            // Conditional text and color based on score
+            if (percentage >= 80) {
+                gradeCircle.style.backgroundImage = `conic-gradient(#00b300 ${percentage}%, #171733 ${percentage}%)`;
+            } else {
+                gradeCircle.style.backgroundImage = `conic-gradient(#cc0000 ${percentage}%, #171733 ${percentage}%)`;
+            }
+
+            // Set the percentage text inside the circle
+            gradeCircle.textContent = `${percentage}%`;
+
+            // Hide the submit button, quiz form, and header. Show the results container.
+            submitButton.classList.add('hidden');
+            quizForm.classList.add('hidden');
+            quizHeader.classList.add('hidden');
+            resultsContainer.classList.remove('hidden');
+            quizContainer.classList.add('is-results');
+        }
+
+        /**
+         * Reveals the correct and incorrect answers and hides the results container.
+         */
+        function revealAnswers() {
+            resultsContainer.classList.add('hidden');
+            // This is where the reset button should be shown
+            resetButton.classList.remove('hidden');
+            quizForm.classList.remove('hidden');
+            quizHeader.classList.remove('hidden');
+            quizHeader.textContent = "Quiz Results";
+            quizContainer.classList.remove('is-results');
+            
+            // Loop through questions to apply correct/incorrect highlighting
+            quizDataMinimal.forEach((q, qIndex) => {
+                const questionLabels = document.querySelectorAll(`input[name="question-${qIndex}"]`);
+                questionLabels.forEach(checkbox => {
+                    const label = checkbox.parentElement;
+                    const optionIndex = parseInt(checkbox.value);
+
+                    // First, remove the 'selected' class to prevent conflicts with correct/incorrect styling
+                    label.classList.remove('selected');
+
+                    // If this is the correct answer, highlight it in green
+                    if (optionIndex === q.correct) {
+                        label.classList.add('correct');
+                    }
+                    
+                    // If the user selected this option and it's incorrect, highlight it in red
+                    else if (checkbox.checked && optionIndex !== q.correct) {
+                        label.classList.add('incorrect');
+                    }
+
+                    // Disable all labels to prevent further changes
+                    label.style.pointerEvents = 'none';
+                    label.style.cursor = 'default';
+                });
+            });
+        }
+
+        // --- Fullscreen functionality ---
+        fullscreenButton.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        });
+
+        // Listen for full screen state changes to update the button icon
+        document.addEventListener('fullscreenchange', () => {
+            const iconPath = fullscreenButton.querySelector('svg path');
+            if (document.fullscreenElement) {
+                document.body.classList.add('fullscreen-mode');
+                fullscreenButton.title = "Exit Full Screen";
+                iconPath.setAttribute('d', 'M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z');
+            } else {
+                document.body.classList.remove('fullscreen-mode');
+                fullscreenButton.title = "Full Screen";
+                iconPath.setAttribute('d', 'M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z');
+            }
+        });
+
+
+        // --- Event Listeners ---
+        submitButton.addEventListener('click', showResults);
+        
+        // New button event listeners
+        yesButton.addEventListener('click', loadQuiz);
+        noButton.addEventListener('click', revealAnswers);
+        resetButton.addEventListener('click', loadQuiz);
+
+        // --- Initial Load ---
+        loadQuiz();
+    </script>
+
+</body>
+</html>

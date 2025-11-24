@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Frequency Band Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            color: white;
+            background-color: transparent; /* Makes the background transparent */
+        }
+
+        .iframe-container {
+            background: #1B1C34;
+            border-radius: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            max-width: 400px;
+            padding: 20px; /* Added padding to replace the old quiz-content div */
+            margin: 20px 0; /* ⬅ left aligned, no auto centering */
+        }
+        
+        .quiz-header {
+            background-color: #009FE3;
+            padding: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            margin: -20px -20px 20px -20px; /* Aligns header to container edges */
+            border-radius: 15px 15px 0 0; /* Rounded top corners */
+        }
+
+        .options-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .draggable-word {
+            background-color: #2E2F4C;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 25px;
+            cursor: grab;
+            margin: 5px;
+            text-align: center;
+            font-size: 0.9rem;
+            transition: transform 0.2s, background 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 80px; 
+            height: 40px;
+            box-sizing: border-box;
+        }
+        
+        .draggable-word:hover {
+            background-color: #3E4066;
+        }
+
+        .question-block {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .drop-zone {
+            width: 80px;
+            height: 40px;
+            background-color: #2E2F4C;
+            border: 2px dashed #4F517A;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+        
+        .drop-zone.hover {
+            border-color: #009FE3;
+        }
+
+        .drop-zone.correct-match {
+            border-color: #28a745 !important;
+        }
+
+        .drop-zone.incorrect-match {
+            border-color: #dc3545 !important;
+        }
+
+        .submit-btn, .nav-btn {
+            display: block;
+            background-color: #009FE3;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
+            transition: background 0.3s;
+        }
+        
+        .submit-btn:hover, .nav-btn:hover {
+            background-color: #007bbf;
+        }
+        
+        .results-container {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 10px;
+        }
+        
+        .results-container p {
+            font-size: 1.5rem;
+            margin: 0;
+            padding-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="iframe-container">
+    <div class="quiz-header">Match each frequency band with its use case:</div>
+        <div class="options-container" id="options-container">
+            <div class="draggable-word" draggable="true" data-value="LF-MF">LF-MF</div>
+            <div class="draggable-word" draggable="true" data-value="HF">HF</div>
+            <div class="draggable-word" draggable="true" data-value="VHF">VHF</div>
+            <div class="draggable-word" draggable="true" data-value="UHF">UHF</div>
+        </div>
+
+        <form id="quiz-form">
+            <div class="question-block">
+                <span>NDB navigation aids:</span>
+                <div class="drop-zone" data-correct-answer="LF-MF"></div>
+            </div>
+            <div class="question-block">
+                <span>Short-medium range communication:</span>
+                <div class="drop-zone" data-correct-answer="VHF"></div>
+            </div>
+            <div class="question-block">
+                <span>Long-range communication:</span>
+                <div class="drop-zone" data-correct-answer="HF"></div>
+            </div>
+            <div class="question-block">
+                <span>Military and emergency services:</span>
+                <div class="drop-zone" data-correct-answer="UHF"></div>
+            </div>
+        </form>
+        
+        <button type="submit" class="submit-btn" onclick="checkAnswers(event)">Submit Quiz</button>
+        
+        <div class="results-container" id="results-container" style="display: none;">
+            <p id="score-text"></p>
+            <button class="nav-btn" onclick="window.location.reload()">Try Again</button>
+        </div>
+    </div>
+
+<script>
+    let draggedElement = null;
+
+    document.addEventListener('dragstart', (e) => {
+        draggedElement = e.target;
+        e.dataTransfer.setData('text/plain', draggedElement.dataset.value);
+    });
+
+    document.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        if (e.target.classList.contains('drop-zone') && e.target.children.length === 0) {
+            e.target.classList.add('hover');
+        }
+    });
+
+    document.addEventListener('dragleave', (e) => {
+        if (e.target.classList.contains('drop-zone')) {
+            e.target.classList.remove('hover');
+        }
+    });
+
+    document.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const dropZone = e.target.closest('.drop-zone');
+        if (dropZone && dropZone.children.length === 0) {
+            dropZone.classList.remove('hover');
+            draggedElement.style.position = 'static';
+            dropZone.appendChild(draggedElement);
+        }
+    });
+
+    function checkAnswers(event) {
+        event.preventDefault();
+        
+        let score = 0;
+        let allAnswered = true;
+        const dropZones = document.querySelectorAll('.drop-zone');
+        
+        dropZones.forEach(zone => {
+            if (zone.children.length === 0) {
+                allAnswered = false;
+            } else {
+                const droppedValue = zone.children[0].dataset.value;
+                const correctAnswer = zone.dataset.correctAnswer;
+                
+                if (droppedValue === correctAnswer) {
+                    zone.classList.add('correct-match');
+                    score++;
+                } else {
+                    zone.classList.add('incorrect-match');
+                }
+            }
+        });
+        
+        if (!allAnswered) {
+            alert('Please drag an answer into every box before submitting.');
+            return;
+        }
+
+        document.querySelector('.submit-btn').style.display = 'none';
+        document.getElementById('results-container').style.display = 'block';
+        document.getElementById('score-text').innerText = `You got ${score}/${dropZones.length} correct!`;
+    }
+</script>
+
+</body>
+</html>
