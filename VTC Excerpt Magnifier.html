@@ -10,7 +10,7 @@
       background: #f5f5f5;
     }
 
-    /* Fixed-size scroll container (window into the big image) */
+    /* Fixed-size scroll container (window into the full-size image) */
     .scroll-container {
       width: 900px;
       height: 571px;
@@ -31,13 +31,13 @@
     /* Full-size original image (no scaling) */
     .image {
       display: block;
-      max-width: none;          /* do NOT auto-fit */
+      max-width: none;
       height: auto;
       user-select: none;
       -webkit-user-drag: none;
     }
 
-    /* Magnifier */
+    /* Magnifier circle */
     .magnifier {
       position: absolute;
       width: 150px;
@@ -54,7 +54,7 @@
 
     .magnifier img {
       position: absolute;
-      transform: scale(2.5);  /* zoom level */
+      transform: scale(2.5); /* zoom level */
       transform-origin: top left;
     }
   </style>
@@ -62,7 +62,7 @@
 <body>
 
   <div class="scroll-container" id="scrollBox">
-    <!-- Use original image at natural size -->
+    <!-- Full-resolution image -->
     <img
       src="VTC Excerpt.png"
       id="mainImage"
@@ -70,7 +70,7 @@
       alt="VTC Excerpt"
     >
 
-    <!-- Magnified copy (also full size) -->
+    <!-- Magnified overlay image -->
     <div id="magnifier" class="magnifier">
       <img src="VTC Excerpt.png" alt="">
     </div>
@@ -84,23 +84,5 @@
 
     const zoom = 2.5;
 
-    box.addEventListener("mousemove", function (e) {
-      const rect = box.getBoundingClientRect();
-      const x = e.clientX - rect.left + box.scrollLeft;
-      const y = e.clientY - rect.top + box.scrollTop;
-
-      magnifier.style.display = "block";
-      magnifier.style.left = (x - magnifier.offsetWidth / 2) + "px";
-      magnifier.style.top  = (y - magnifier.offsetHeight / 2) + "px";
-
-      zoomImg.style.left = (-x * zoom + magnifier.offsetWidth / 2) + "px";
-      zoomImg.style.top  = (-y * zoom + magnifier.offsetHeight / 2) + "px";
-    });
-
-    box.addEventListener("mouseleave", function () {
-      magnifier.style.display = "none";
-    });
-  </script>
-
-</body>
-</html>
+    /* Magnifier movement */
+    b
