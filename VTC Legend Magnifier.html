@@ -11,15 +11,19 @@
     text-align: center;
   }
 
-  /* Container simply centers the image */
+  /* Container sized to match exact image dimensions */
   .image-container {
     position: relative;
     display: inline-block;
+    width: 898px;
+    height: 1368px;
   }
 
   img {
+    width: 898px;
+    height: auto;
+    max-width: none;
     display: block;
-    max-width: none;   /* ensures magnifier math works */
     user-select: none;
     -webkit-user-drag: none;
   }
@@ -29,9 +33,3 @@
     position: absolute;
     width: 150px;
     height: 150px;
-    border-radius: 50%;
-    border: 3px solid #000;
-    overflow: hidden;
-    pointer-events: none;
-    display: none;
-    z-index: 10;
