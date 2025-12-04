@@ -28,7 +28,7 @@
       scrollbar-width: auto;
     }
 
-    /* Full-size original image */
+    /* Full-size original image (no scaling) */
     .image {
       display: block;
       max-width: none;
@@ -54,7 +54,7 @@
 
     .magnifier img {
       position: absolute;
-      transform: scale(2.5);
+      transform: scale(2.5); /* zoom level */
       transform-origin: top left;
     }
   </style>
@@ -62,6 +62,7 @@
 <body>
 
   <div class="scroll-container" id="scrollBox">
+    <!-- Full-resolution image -->
     <img
       src="VTC Excerpt.png"
       id="mainImage"
@@ -69,6 +70,7 @@
       alt="VTC Excerpt"
     >
 
+    <!-- Magnified overlay image -->
     <div id="magnifier" class="magnifier">
       <img src="VTC Excerpt.png" alt="">
     </div>
@@ -81,7 +83,6 @@
     const zoomImg = magnifier.querySelector("img");
 
     const zoom = 2.5;
-    let hasAutoScrolled = false;   // ⭐ Prevents auto-scroll from running again
 
     /* Magnifier movement */
     box.addEventListener("mousemove", function (e) {
@@ -101,21 +102,26 @@
       magnifier.style.display = "none";
     });
 
-    /* ⭐ Auto-scroll ONCE to bottom-centre */
+    /* ⭐ Auto-scroll to bottom-centre using container scroll sizes */
     function autoScrollToBottomCentre() {
-      if (hasAutoScrolled) return;   // Prevent re-triggering
-      hasAutoScrolled = true;
+      const maxTop = box.scrollHeight - box.clientHeight;
+      const maxLeft = box.scrollWidth - box.clientWidth;
 
-      box.scrollTop = mainImg.height - box.clientHeight;
-      box.scrollLeft = (mainImg.width - box.clientWidth) / 2;
+      // Scroll to the very bottom
+      box.scrollTop = maxTop > 0 ? maxTop : 0;
+
+      // Scroll to horizontal centre
+      box.scrollLeft = maxLeft > 0 ? maxLeft / 2 : 0;
     }
 
-    /* Run auto-scroll when the image loads */
-    mainImg.onload = autoScrollToBottomCentre;
+    // Run when the image finishes loading
+    mainImg.addEventListener("load", () => {
+      requestAnimationFrame(autoScrollToBottomCentre);
+    });
 
-    /* ⭐ If image is already cached, run auto-scroll immediately */
+    // If the image is already cached, still auto-scroll
     if (mainImg.complete) {
-      autoScrollToBottomCentre();
+      requestAnimationFrame(autoScrollToBottomCentre);
     }
   </script>
 
