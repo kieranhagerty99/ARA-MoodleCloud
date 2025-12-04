@@ -11,25 +11,79 @@
     text-align: center;
   }
 
-  /* Container sized to match exact image dimensions */
   .image-container {
     position: relative;
     display: inline-block;
-    width: 898px;
-    height: 1368px;
   }
 
   img {
-    width: 898px;
-    height: auto;
-    max-width: none;
     display: block;
+    max-width: none;
     user-select: none;
     -webkit-user-drag: none;
   }
 
-  /* Magnifier circle */
   .magnifier {
     position: absolute;
     width: 150px;
     height: 150px;
+    border-radius: 50%;
+    border: 3px solid #000;
+    overflow: hidden;
+    pointer-events: none;
+    display: none;
+    z-index: 10;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    background: #fff;
+  }
+
+  .magnifier img {
+    position: absolute;
+    transform: scale(2.5);
+    transform-origin: top left;
+  }
+</style>
+
+</head>
+<body>
+
+<div class="image-container" id="container">
+  <img src="VTC Legend.png" id="mainImage" alt="VTC Legend">
+  <div id="magnifier" class="magnifier">
+    <img src="VTC Legend.png" alt="">
+  </div>
+</div>
+
+<script>
+  const container = document.getElementById("container");
+  const mainImg = document.getElementById("mainImage");
+  const magnifier = document.getElementById("magnifier");
+  const zoomImg = magnifier.querySelector("img");
+
+  const zoom = 2.5;
+
+  // Magnifier behaviour
+  container.addEventListener("mousemove", (e) => {
+    const rect = mainImg.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    // show magnifier
+    magnifier.style.display = "block";
+
+    // move magnifier with cursor
+    magnifier.style.left = (x - magnifier.offsetWidth / 2) + "px";
+    magnifier.style.top  = (y - magnifier.offsetHeight / 2) + "px";
+
+    // zoom image position
+    zoomImg.style.left = (-x * zoom + magnifier.offsetWidth / 2) + "px";
+    zoomImg.style.top  = (-y * zoom + magnifier.offsetHeight / 2) + "px";
+  });
+
+  container.addEventListener("mouseleave", () => {
+    magnifier.style.display = "none";
+  });
+</script>
+
+</body>
+</html>
