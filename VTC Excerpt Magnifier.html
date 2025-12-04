@@ -7,23 +7,19 @@
   <style>
     body {
       margin: 0;
-      background: #f5f5f5;
+      background: #ffffff;
     }
 
-    /* Fixed-size scroll container (window into the full-size image) */
-    .scroll-container {
-      width: 900px;
-      height: 571px;
-      overflow: auto;              /* scrolling enabled, OS decides bar style */
-      border: 1px solid #ccc;
+    /* Wrapper just holds the full-size image */
+    .image-wrapper {
       position: relative;
-      background: #eaeaea;
+      display: inline-block;
     }
 
     /* Full-size original image (no scaling) */
     .image {
       display: block;
-      max-width: none;
+      max-width: none;          /* don’t shrink to fit iframe */
       height: auto;
       user-select: none;
       -webkit-user-drag: none;
@@ -31,7 +27,7 @@
 
     /* Magnifier circle */
     .magnifier {
-      position: absolute;
+      position: fixed;          /* stays under cursor even when scrolled */
       width: 150px;
       height: 150px;
       border-radius: 50%;
@@ -46,14 +42,14 @@
 
     .magnifier img {
       position: absolute;
-      transform: scale(2.5); /* zoom level */
+      transform: scale(2.5);    /* zoom level */
       transform-origin: top left;
     }
   </style>
 </head>
 <body>
 
-  <div class="scroll-container" id="scrollBox">
+  <div class="image-wrapper" id="wrapper">
     <!-- Full-resolution image -->
     <img
       src="VTC Excerpt.png"
@@ -69,52 +65,53 @@
   </div>
 
   <script>
-    const box = document.getElementById("scrollBox");
     const mainImg = document.getElementById("mainImage");
     const magnifier = document.getElementById("magnifier");
     const zoomImg = magnifier.querySelector("img");
-
     const zoom = 2.5;
 
     /* Magnifier movement */
-    box.addEventListener("mousemove", function (e) {
+    document.addEventListener("mousemove", function (e) {
       const rect = mainImg.getBoundingClientRect();
-      const x = e.clientX - rect.left + box.scrollLeft;
-      const y = e.clientY - rect.top + box.scrollTop;
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      // Only show magnifier when cursor is over the image
+      if (x < 0 || y < 0 || x > rect.width || y > rect.height) {
+        magnifier.style.display = "none";
+        return;
+      }
+
+      const magW = magnifier.offsetWidth;
+      const magH = magnifier.offsetHeight;
 
       magnifier.style.display = "block";
-      magnifier.style.left = (x - magnifier.offsetWidth / 2) + "px";
-      magnifier.style.top  = (y - magnifier.offsetHeight / 2) + "px";
+      magnifier.style.left = (e.clientX - magW / 2) + "px";
+      magnifier.style.top  = (e.clientY - magH / 2) + "px";
 
-      zoomImg.style.left = (-x * zoom + magnifier.offsetWidth / 2) + "px";
-      zoomImg.style.top  = (-y * zoom + magnifier.offsetHeight / 2) + "px";
+      // Position zoomed image so the area under the cursor is in the centre
+      zoomImg.style.left = -(x * zoom - magW / 2) + "px";
+      zoomImg.style.top  = -(y * zoom - magH / 2) + "px";
     });
 
-    box.addEventListener("mouseleave", function () {
-      magnifier.style.display = "none";
-    });
+    /* Auto-scroll to bottom-centre once the layout is ready */
+    function scrollToBottomCentre() {
+      const doc = document.documentElement;
+      const scrollWidth  = doc.scrollWidth;
+      const scrollHeight = doc.scrollHeight;
+      const viewportW    = window.innerWidth;
+      const viewportH    = window.innerHeight;
 
-    /* Auto-scroll to bottom-centre using container scroll sizes */
-    function autoScrollToBottomCentre() {
-      const maxTop = box.scrollHeight - box.clientHeight;
-      const maxLeft = box.scrollWidth - box.clientWidth;
+      const targetTop  = Math.max(0, scrollHeight - viewportH);
+      const targetLeft = Math.max(0, (scrollWidth - viewportW) / 2);
 
-      // Scroll to the very bottom
-      box.scrollTop = maxTop > 0 ? maxTop : 0;
-
-      // Scroll to horizontal centre
-      box.scrollLeft = maxLeft > 0 ? maxLeft / 2 : 0;
+      window.scrollTo(targetLeft, targetTop);
     }
 
-    // Run when the image finishes loading
-    mainImg.addEventListener("load", () => {
-      requestAnimationFrame(autoScrollToBottomCentre);
+    window.addEventListener("load", function () {
+      // Give the browser a tick to finalize layout, then scroll
+      requestAnimationFrame(scrollToBottomCentre);
     });
-
-    // If the image is already cached, still auto-scroll
-    if (mainImg.complete) {
-      requestAnimationFrame(autoScrollToBottomCentre);
-    }
   </script>
 
 </body>
