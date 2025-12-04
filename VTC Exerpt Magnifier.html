@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Image Viewer with Magnifier</title>
+
+<style>
+    /* Scrollable container */
+    .scroll-container {
+        width: 100%;
+        height: 500px; /* adjust as needed */
+        overflow: scroll;
+        border: 1px solid #ccc;
+        position: relative;
+    }
+
+    /* The image */
+    .image {
+        width: auto;
+        height: auto;
+        display: block;
+    }
+
+    /* Magnifier glass */
+    .magnifier {
+        position: absolute;
+        border: 3px solid #000;
+        border-radius: 50%;
+        width: 150px;   /* size of magnifier */
+        height: 150px;
+        overflow: hidden;
+        pointer-events: none; /* mouse ignores it */
+        display: none; /* hidden until hover */
+    }
+
+    .magnifier img {
+        position: absolute;
+        transform: scale(2); /* magnification level */
+        transform-origin: top left;
+    }
+</style>
+
+</head>
+<body>
+
+<div class="scroll-container" id="scrollBox">
+    <img src="YOUR_IMAGE_URL_HERE" id="mainImage" class="image">
+    <div id="magnifier" class="magnifier">
+        <img src="YOUR_IMAGE_URL_HERE">
+    </div>
+</div>
+
+<script>
+    const box = document.getElementById("scrollBox");
+    const mainImg = document.getElementById("mainImage");
+    const magnifier = document.getElementById("magnifier");
+    const zoomImg = magnifier.querySelector("img");
+
+    box.addEventListener("mousemove", function(e) {
+        const rect = box.getBoundingClientRect();
+        const x = e.clientX - rect.left + box.scrollLeft;
+        const y = e.clientY - rect.top + box.scrollTop;
+
+        magnifier.style.left = (x - magnifier.offsetWidth / 2) + "px";
+        magnifier.style.top = (y - magnifier.offsetHeight / 2) + "px";
+        magnifier.style.display = "block";
+
+        zoomImg.style.left = (-x) + "px";
+        zoomImg.style.top = (-y) + "px";
+    });
+
+    box.addEventListener("mouseleave", function() {
+        magnifier.style.display = "none";
+    });
+</script>
+
+</body>
+</html>
