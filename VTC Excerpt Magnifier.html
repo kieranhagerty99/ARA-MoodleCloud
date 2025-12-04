@@ -14,18 +14,10 @@
     .scroll-container {
       width: 900px;
       height: 571px;
-      overflow: scroll;
+      overflow: auto;              /* scrolling enabled, OS decides bar style */
       border: 1px solid #ccc;
       position: relative;
       background: #eaeaea;
-    }
-
-    /* Always show scrollbars */
-    .scroll-container::-webkit-scrollbar {
-      display: block;
-    }
-    .scroll-container {
-      scrollbar-width: auto;
     }
 
     /* Full-size original image (no scaling) */
@@ -102,7 +94,7 @@
       magnifier.style.display = "none";
     });
 
-    /* ⭐ Auto-scroll to bottom-centre using container scroll sizes */
+    /* Auto-scroll to bottom-centre using container scroll sizes */
     function autoScrollToBottomCentre() {
       const maxTop = box.scrollHeight - box.clientHeight;
       const maxLeft = box.scrollWidth - box.clientWidth;
