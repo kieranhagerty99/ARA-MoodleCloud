@@ -1,66 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>VTC Legend Magnifier</title>
+<meta charset="UTF-8">
+<title>VTC Legend Magnifier</title>
 
-  <style>
-    .scroll-container {
-      width: 800px;       /* Set fixed width */
-      height: 600px;      /* Set fixed height */
-      overflow: scroll;   /* Always show scrollbars */
-      border: 1px solid #ccc;
-      position: relative;
-      margin: 0 auto;
-      background: #f5f5f5;
-    }
+<style>
+  body {
+    margin: 0;
+    background: #f5f5f5;
+    text-align: center;
+  }
 
-    .scroll-container::-webkit-scrollbar {
-      display: block; /* Forces scrollbar visibility in Chrome/Safari */
-    }
+  /* Container simply centers the image */
+  .image-container {
+    position: relative;
+    display: inline-block;
+  }
 
-    .scroll-container {
-      scrollbar-width: auto; /* Firefox always-visible scrollbar */
-    }
+  img {
+    display: block;
+    max-width: none;   /* ensures magnifier math works */
+    user-select: none;
+    -webkit-user-drag: none;
+  }
 
-    .image {
-      display: block;
-      width: auto;
-      height: auto;
-      max-width: none;
-      user-select: none;
-      -webkit-user-drag: none;
-    }
-
-    .magnifier {
-      position: absolute;
-      border: 3px solid #000;
-      border-radius: 50%;
-      width: 150px;
-      height: 150px;
-      overflow: hidden;
-      pointer-events: none;
-      display: none;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
-      z-index: 10;
-      background: #fff;
-    }
-
-    .magnifier img {
-      position: absolute;
-      transform: scale(2.5); /* Zoom level */
-      transform-origin: top left;
-    }
-  </style>
-</head>
-<body>
-
-  <div class="scroll-container" id="scrollBox">
-    <img
-      src="VTC Legend.png"
-      id="mainImage"
-      class="image"
-      alt="VTC Legend"
-    >
-    <div id="magnifier" class="magnifier">
-      <img src="VTC Legend.png"
+  /* Magnifier circle */
+  .magnifier {
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 3px solid #000;
+    overflow: hidden;
+    pointer-events: none;
+    display: none;
+    z-index: 10;
