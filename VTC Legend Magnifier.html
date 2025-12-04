@@ -6,14 +6,21 @@
 
   <style>
     .scroll-container {
-      width: 100%;
-      max-width: 800px;
-      height: 500px;
-      overflow: auto;
+      width: 800px;       /* Set fixed width */
+      height: 600px;      /* Set fixed height */
+      overflow: scroll;   /* Always show scrollbars */
       border: 1px solid #ccc;
       position: relative;
       margin: 0 auto;
       background: #f5f5f5;
+    }
+
+    .scroll-container::-webkit-scrollbar {
+      display: block; /* Forces scrollbar visibility in Chrome/Safari */
+    }
+
+    .scroll-container {
+      scrollbar-width: auto; /* Firefox always-visible scrollbar */
     }
 
     .image {
@@ -41,7 +48,7 @@
 
     .magnifier img {
       position: absolute;
-      transform: scale(2.5); /* zoom level */
+      transform: scale(2.5); /* Zoom level */
       transform-origin: top left;
     }
   </style>
@@ -49,45 +56,11 @@
 <body>
 
   <div class="scroll-container" id="scrollBox">
-    <!-- MAIN IMAGE -->
     <img
       src="VTC Legend.png"
       id="mainImage"
       class="image"
       alt="VTC Legend"
     >
-
-    <!-- MAGNIFIED COPY -->
     <div id="magnifier" class="magnifier">
-      <img src="VTC Legend.png" alt="Zoomed VTC Legend">
-    </div>
-  </div>
-
-  <script>
-    const box = document.getElementById("scrollBox");
-    const mainImg = document.getElementById("mainImage");
-    const magnifier = document.getElementById("magnifier");
-    const zoomImg = magnifier.querySelector("img");
-
-    const zoom = 2.5;
-
-    box.addEventListener("mousemove", function (e) {
-      const rect = box.getBoundingClientRect();
-      const x = e.clientX - rect.left + box.scrollLeft;
-      const y = e.clientY - rect.top + box.scrollTop;
-
-      magnifier.style.left = (x - magnifier.offsetWidth / 2) + "px";
-      magnifier.style.top  = (y - magnifier.offsetHeight / 2) + "px";
-      magnifier.style.display = "block";
-
-      zoomImg.style.left = (-x * zoom + magnifier.offsetWidth / 2) + "px";
-      zoomImg.style.top  = (-y * zoom + magnifier.offsetHeight / 2) + "px";
-    });
-
-    box.addEventListener("mouseleave", function () {
-      magnifier.style.display = "none";
-    });
-  </script>
-
-</body>
-</html>
+      <img src="VTC Legend.png"
