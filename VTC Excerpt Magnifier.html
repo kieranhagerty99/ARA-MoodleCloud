@@ -28,4 +28,96 @@
       scrollbar-width: auto;
     }
 
-    /* Full-size or*
+    /* Full-size original image */
+    .image {
+      display: block;
+      max-width: none;
+      height: auto;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    /* Magnifier circle */
+    .magnifier {
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      border: 3px solid #000;
+      overflow: hidden;
+      pointer-events: none;
+      display: none;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      z-index: 10;
+      background: #fff;
+    }
+
+    .magnifier img {
+      position: absolute;
+      transform: scale(2.5);
+      transform-origin: top left;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="scroll-container" id="scrollBox">
+    <img
+      src="VTC Excerpt.png"
+      id="mainImage"
+      class="image"
+      alt="VTC Excerpt"
+    >
+
+    <div id="magnifier" class="magnifier">
+      <img src="VTC Excerpt.png" alt="">
+    </div>
+  </div>
+
+  <script>
+    const box = document.getElementById("scrollBox");
+    const mainImg = document.getElementById("mainImage");
+    const magnifier = document.getElementById("magnifier");
+    const zoomImg = magnifier.querySelector("img");
+
+    const zoom = 2.5;
+    let hasAutoScrolled = false;   // ⭐ Prevents auto-scroll from running again
+
+    /* Magnifier movement */
+    box.addEventListener("mousemove", function (e) {
+      const rect = mainImg.getBoundingClientRect();
+      const x = e.clientX - rect.left + box.scrollLeft;
+      const y = e.clientY - rect.top + box.scrollTop;
+
+      magnifier.style.display = "block";
+      magnifier.style.left = (x - magnifier.offsetWidth / 2) + "px";
+      magnifier.style.top  = (y - magnifier.offsetHeight / 2) + "px";
+
+      zoomImg.style.left = (-x * zoom + magnifier.offsetWidth / 2) + "px";
+      zoomImg.style.top  = (-y * zoom + magnifier.offsetHeight / 2) + "px";
+    });
+
+    box.addEventListener("mouseleave", function () {
+      magnifier.style.display = "none";
+    });
+
+    /* ⭐ Auto-scroll ONCE to bottom-centre */
+    function autoScrollToBottomCentre() {
+      if (hasAutoScrolled) return;   // Prevent re-triggering
+      hasAutoScrolled = true;
+
+      box.scrollTop = mainImg.height - box.clientHeight;
+      box.scrollLeft = (mainImg.width - box.clientWidth) / 2;
+    }
+
+    /* Run auto-scroll when the image loads */
+    mainImg.onload = autoScrollToBottomCentre;
+
+    /* ⭐ If image is already cached, run auto-scroll immediately */
+    if (mainImg.complete) {
+      autoScrollToBottomCentre();
+    }
+  </script>
+
+</body>
+</html>
